@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"encoding/csv"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -11,11 +12,13 @@ import (
 )
 
 func main() {
-	csvPath := "../../problems.csv"
-	timeout := time.Duration(10) // Timeout in seconds
+
+	csvPath := flag.String("csv", "../../problems.csv", "Path to the csv file that contains the questions,answers")
+	timeout := flag.Int("timout", 10, "Timout for each question in seconds") // Timeout in seconds
+	flag.Parse()
 
 	// data is a 2D string slice that mirrors the csv file.
-	data := readCSV(csvPath)
+	data := readCSV(*csvPath)
 	totalQuestions := 0
 	correctAnswers := 0
 
@@ -39,7 +42,7 @@ func main() {
 		}()
 
 		go func() {
-			time.Sleep(timeout * time.Second)
+			time.Sleep(time.Duration(*timeout) * time.Second)
 			timeoutChannel <- 1
 		}()
 
