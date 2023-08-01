@@ -14,7 +14,7 @@ import (
 func main() {
 
 	csvPath := flag.String("csv", "../../problems.csv", "Path to the csv file that contains the questions,answers")
-	timeout := flag.Int("timout", 10, "Timout for each question in seconds") // Timeout in seconds
+	timeout := flag.Int("timeout", 5, "Timout for each question in seconds") // Timeout in seconds
 	flag.Parse()
 
 	// data is a 2D string slice that mirrors the csv file.
@@ -30,7 +30,6 @@ func main() {
 		fmt.Printf("Question %d: What is %s ?\n", idx, question)
 
 		inputChannel := make(chan string)
-		timeoutChannel := make(chan int)
 
 		go func() {
 			reader := bufio.NewReader(os.Stdin)
@@ -39,11 +38,6 @@ func main() {
 				log.Fatal(err)
 			}
 			inputChannel <- strings.TrimSpace(input)
-		}()
-
-		go func() {
-			time.Sleep(time.Duration(*timeout) * time.Second)
-			timeoutChannel <- 1
 		}()
 
 		select {
@@ -60,9 +54,9 @@ func main() {
 				fmt.Printf("Incorrect\n")
 			}
 			totalQuestions++
-		case <-timeoutChannel:
-			fmt.Printf("You took too long!")
 			os.Exit(0)
+		case <-time.After(time.Duration(*timeout) * time.Second):
+			fmt.Println("You took too long!")
 		}
 	}
 	fmt.Printf("Well done! You achieved a score of %d/%d", correctAnswers, totalQuestions)
