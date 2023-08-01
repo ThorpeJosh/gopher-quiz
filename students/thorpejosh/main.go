@@ -19,10 +19,11 @@ func main() {
 
 	// data is a 2D string slice that mirrors the csv file.
 	data := readCSV(*csvPath)
-	totalQuestions := 0
+	totalQuestions := len(data)
 	correctAnswers := 0
 
 	fmt.Println("Welcome to the quiz!\n Press q at anytime to quit")
+problemLoop:
 	for idx, line := range data {
 
 		question := strings.TrimSpace(line[0])
@@ -53,10 +54,9 @@ func main() {
 			} else {
 				fmt.Printf("Incorrect\n")
 			}
-			totalQuestions++
-			os.Exit(0)
 		case <-time.After(time.Duration(*timeout) * time.Second):
 			fmt.Println("You took too long!")
+			break problemLoop
 		}
 	}
 	fmt.Printf("Well done! You achieved a score of %d/%d", correctAnswers, totalQuestions)
